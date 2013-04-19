@@ -6,6 +6,21 @@
 //  Copyright (c) 2013 Mykola Farion. All rights reserved.
 //
 
+/*  Developer guide
+    
+    Texture sizes must be 2^n, where n - unsigned number;
+    updateImage(buffer, texture_width, texture_height) redraw all texture, buffer - new image;
+    updateImage(buffer, rects) replace rects in used texture, it gets rect from new image and set it;
+    
+    NOTE, to see what updateImage changes - find in GLViewer.cpp  method called
+    void GLViewer::updateImage(std::vector<GLPixel> &buffer,std::vector <GLRect> &rects)
+    and make change which is in comment. 
+    After it run program and click  - left mouse for view update methods perform;
+                                    - right mouse for exit;
+    Window resizing  will save ratio of texture sides and display maximum posible for insert texture.
+ */
+
+
 #include <iostream>
 #include <GLUT/GLUT.h>
 #include "GLViewer.h"
