@@ -8,7 +8,6 @@
 
 /*  Developer guide
     
-    Texture sizes must be 2^n, where n - unsigned number;
     updateImage(buffer, texture_width, texture_height) redraw all texture, buffer - new image;
     updateImage(buffer, rects) replace rects in used texture, it gets rect from new image and set it;
     
@@ -70,7 +69,7 @@ void makeCheckImage(void)
     
             fullImPixel.red = (GLubyte) 2*i;
             fullImPixel.green = (GLubyte) 2*j;
-            fullImPixel.blue = (GLubyte) (texture_width-1-i)+(texture_height-1-j);
+            fullImPixel.blue = (GLubyte) (255-i)+(255-j);
             fullImPixel.alpha = (GLubyte) 255;
             buffer.push_back(fullImPixel);
         }
