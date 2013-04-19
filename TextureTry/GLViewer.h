@@ -32,14 +32,21 @@ class GLViewer{
     
 public:
     
+    void render();
+    
     // uses texture sizes
     void initWithBuffer(std::vector<GLPixel> &buffer, int width, int height);// works +
-    
-    // uses window width and height
     void updateImage(std::vector<GLPixel> &buffer, int width, int height);
-    void updateImage(std::vector<GLPixel> &buffer, int width, int height, std::vector<GLRect> &rects);
+    void updateImage(std::vector<GLPixel> &buffer/*, int width, int height*/, std::vector<GLRect> &rects);
     
-    void render();
+    // uses window sizes
+    void reshape(int width, int height);
+    
+    ~GLViewer()
+    {
+        removeTexture(1, &texName);
+    }
+    
     
 private:
     
@@ -52,10 +59,14 @@ private:
     GLsizei window_width;
     GLsizei window_height;
     
-    // subImage functions
+    // texture functions
+    void addTexImage(std::vector<GLPixel> &texImage, GLint width, GLint height);
+    void removeTexture(GLsizei n, const GLuint *textureNames);
+    
+    // subImage
     void addSubImage(std::vector<GLPixel> &subImage, GLRect &rect);
     
-    // implement here grab funtion
+    // getting subtexture from texture
     void grabSubTex(std::vector<GLPixel> &buffer, GLRect &rect);
     
     // size

@@ -10,24 +10,12 @@
 #include <GLUT/GLUT.h>
 #include "GLViewer.h"
 
-//struct GLRect{
-//    GLsizei/*float*/ width;
-//    GLsizei/*float*/ height;
-//    GLint/*float*/ x;
-//    GLint/*float*/ y;
-//};
-
-//#define window_width 256
-//#define window_height 256
-//#define texture_width 128
-//#define texture_height 128
 
 
-//void keyPressed(unsigned char c, int x, int y);
+void makeCheckImage(void);
+void display(void);
 void mouseClick(int button, int state, int x, int y);
 void reshape(int w, int h);
-void spinDisplay(void);
-//void updateImage(GLubyte* buffer, int width, int height, GLRect rects[],int rectsSize);
 
 static GLPixel fullImPixel;
 static GLPixel subImPixel;
@@ -36,6 +24,8 @@ GLViewer myViewer;
 std::vector<GLPixel> buffer;
 std::vector<GLPixel> subImage;
 std::vector<GLRect> rects;
+
+//window and texture consts 
 GLint window_width = 256;
 GLint window_height = 256;
 GLint texture_width = 128;
@@ -43,6 +33,10 @@ GLint texture_height = 128;
 
 void makeCheckImage(void)
 {
+    while(!buffer.empty())
+    {
+        buffer.pop_back();
+    }
     int i, j, c;
     for (i = 0; i < texture_width; i++)
     {
@@ -78,7 +72,7 @@ void reshape(int w, int h)
 {
     window_height = h;
     window_width = w;
-    myViewer.updateImage(buffer, w, h);
+    myViewer.reshape(w,h);
     
 }
 
@@ -103,12 +97,10 @@ void mouseClick(int button, int state, int x, int y)
             rects.push_back(rect2);
             textureOn = !textureOn;
             if(textureOn){
-                myViewer.updateImage(buffer, window_width, window_height, rects);
-                
+                myViewer.updateImage(buffer, rects);
             }
             else {
-                myViewer.updateImage(buffer, window_width, window_height);
-               //glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture_width, texture_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, &buffer[0]);
+                myViewer.updateImage(buffer, texture_width, texture_height);
             }
             glutPostRedisplay();
         }
@@ -128,9 +120,7 @@ int main(int argc,  char* argv[])
     glutInitWindowSize(window_width, window_height);
     glutCreateWindow("OpenGL window");
     myViewer.initWithBuffer(buffer,texture_width,texture_height);
-    //init();
     glutReshapeFunc(reshape);
-
     glutMouseFunc(mouseClick);
     glutDisplayFunc(display);
     glutMainLoop();

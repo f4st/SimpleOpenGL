@@ -37,21 +37,20 @@ std::vector<GLPixel> genTestSubTex(int width, int height)
     return mySubTex;
 }
 
-/*void GLViewer::grabSubTex(std::vector<GLPixel> &buffer, GLRect &rect)
+void GLViewer::grabSubTex(std::vector<GLPixel> &buffer, GLRect &rect)
 {
-    int position; //= rect.y*texture_width+rect.x;
+    int position;
     
     for (int i=0;i<rect.height;i++)
     {
-        position = rect.y*i*texture_width+rect.x;
-        
+        position = (rect.y+i)*texture_width+rect.x;
         for(int j=0;j<rect.width;j++)
         {
             subImage.push_back(buffer[position]);
             position++;
         }
     }
-}*/
+}
 
 bool GLViewer::didSizeChanged(int width, int height)
 {
@@ -66,36 +65,45 @@ bool GLViewer::didSizeChanged(int width, int height)
 
 void GLViewer::updateImage(std::vector<GLPixel> &buffer, int width, int height)
 {
-    bool needSizeUpdate = didSizeChanged(width,height);
-
-    if(needSizeUpdate)
-    {
-        //check for scale without stretching image property
-        GLfloat wRatio = (GLfloat) width/ (GLfloat)texture_width;
-        GLfloat hRatio = (GLfloat) height/ (GLfloat)texture_height;
-        if((wRatio != hRatio)&& needSizeUpdate)
-        {
-            GLfloat minRatio = (wRatio-hRatio<0)?wRatio:hRatio;
-            width = minRatio * texture_width;
-            height = minRatio * texture_height;
-        }
-        //update image
-        window_width = width;
-        window_height = height;
-        //glLoadIdentity();
-        glViewport(0, 0, window_width, window_height);
-        //glMatrixMode(GL_PROJECTION);
-    }
+    
+    addTexImage(buffer, width, height);
+    reshape(window_width, window_height);
 }
 
-void GLViewer::updateImage(std::vector<GLPixel> &buffer, int width, int height,std::vector <GLRect> &rects)
+void GLViewer::reshape(int width, int height)
+{
+    //check for scale without stretching image property
+    GLfloat wRatio = (GLfloat) width/ (GLfloat)texture_width;
+    GLfloat hRatio = (GLfloat) height/ (GLfloat)texture_height;
+    if(wRatio != hRatio)
+    {
+        GLfloat minRatio = (wRatio-hRatio<0)?wRatio:hRatio;
+        width = minRatio * texture_width;
+        height = minRatio * texture_height;
+    }
+    
+    //update window
+    window_width = width;
+    window_height = height;
+    glViewport(0, 0, window_width, window_height);
+}
+
+void GLViewer::removeTexture(GLsizei n, const GLuint *textureNames)
+{
+    glDeleteTextures(n, textureNames);
+}
+
+void GLViewer::addTexImage(std::vector<GLPixel> &texImage, GLint width, GLint height)
+{
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, &texImage[0]);
+}
+
+void GLViewer::updateImage(std::vector<GLPixel> &buffer,std::vector <GLRect> &rects)
 {
     
     GLRect winRect;
     GLRect texRect;
-    GLfloat ratioH = (GLfloat)texture_height/(GLfloat)window_height;
-    GLfloat ratioW = (GLfloat)texture_height/(GLfloat)window_height;
-    
+
     // work with each rect 
     while(!rects.empty())
     {
@@ -107,28 +115,17 @@ void GLViewer::updateImage(std::vector<GLPixel> &buffer, int width, int height,s
         
         //get rect in win sizes
         winRect = rects.back();
-        
-        // convert rect to tex coordinates
-        texRect.height = winRect.height*ratioH;
-        texRect.width = winRect.width*ratioW;
-        texRect.x = winRect.x * ratioW;
-        texRect.y = winRect.y * ratioH;
+        texRect = winRect;
 
+        // for check replace grabSubTex(buffer, texRect); string with
+        //subImage = genTestSubTex(texRect.width, texRect.height);
         
-        
-//////////////////////////////////////////////
-//        IMPLEMENT HERE RECTANGLE GRAB
-
-        subImage = genTestSubTex(texRect.width, texRect.height);
-        //grabSubTex(buffer, texRect);
-//////////////////////////////////////////////
+        grabSubTex(buffer, texRect);
         
         addSubImage(subImage, texRect);
         rects.pop_back();
     }
     
-    // full image update
-    updateImage(buffer,width,height);
 }
 
 
